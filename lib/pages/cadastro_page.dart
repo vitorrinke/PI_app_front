@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:curso_flutter/validators/cadastro_validator.dart';
+import '../services/user.service.dart';
 
 const Color kPrimaryColor = Color(0xFFFFD72C); // AMARELO PADRÃO A
 
@@ -19,6 +20,7 @@ class CadastroPageState extends State<CadastroPage> {
   final TextEditingController _senhaController = TextEditingController();
   final TextEditingController _confirmarSenhaController =
       TextEditingController();
+  final _userService = UserService();
 
   @override
   Widget build(BuildContext context) {
@@ -129,10 +131,23 @@ class CadastroPageState extends State<CadastroPage> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               // LÓGICA FUTURA DE CADASTRO
                               // Por exemplo, chamar a API para criar o usuário
+                              final userData = {
+                                "nome": _nomeController.text,
+                                "email": _emailController.text,
+                                "senha": _senhaController.text,
+                                "tipo_user": 0,
+                              };
+
+                              try {
+                                await _userService.createUser(userData);
+                                print('suceso?');
+                              } catch (error) {
+                                print(error);
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(
