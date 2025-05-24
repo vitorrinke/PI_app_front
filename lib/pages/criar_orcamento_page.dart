@@ -1,6 +1,8 @@
 import 'package:curso_flutter/services/servicos_service.dart';
 import 'package:flutter/material.dart';
 import '../services/orcamento_service.dart';
+import '../services/user.service.dart';
+import '../models/user_model.dart';
 
 class CriarOrcamentoPage extends StatefulWidget {
   const CriarOrcamentoPage({super.key});
@@ -20,6 +22,7 @@ class CriarOrcamentoPageState extends State<CriarOrcamentoPage> {
   TextEditingController codigoClienteController = TextEditingController();
   final _orcamentoService = OrcamentoService();
   final _servicoService = ServicoService();
+  final _userService = UserService();
 
   // Dados simulados de clientes (na API, seria um retorno de um banco de dados)
   List<Map<String, dynamic>> clientes = [
@@ -40,9 +43,7 @@ class CriarOrcamentoPageState extends State<CriarOrcamentoPage> {
       List<dynamic> fetchedOrcamentos =
           await _orcamentoService.findAllOrcamentos();
       setState(() {
-        orcamento =
-            fetchedOrcamentos.first
-                .cast<Map<String, dynamic>>(); // Ensure correct format
+        orcamento = fetchedOrcamentos.first.cast<Map<String, dynamic>>();
       });
 
       // Populate controllers with the fetched data
@@ -63,6 +64,38 @@ class CriarOrcamentoPageState extends State<CriarOrcamentoPage> {
       });
     } catch (e) {
       print("Erro ao carregar serviços: $e");
+    }
+  }
+
+  void mostrarDialogoCliente(BuildContext context) async {
+    try {
+      List<User> clientes =
+          await _userService.findAllUsersDart(); // Fetch users dynamically
+
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text('Selecione o Código do Cliente'),
+              content: ListView.builder(
+                shrinkWrap: true,
+                itemCount: clientes.length,
+                itemBuilder: (context, index) {
+                  final cliente = clientes[index];
+                  return ListTile(
+                    title: Text('${cliente.nome} (${cliente.id})'),
+                    onTap: () {
+                      codigoClienteController.text = cliente.id.toString();
+                      clienteController.text = cliente.nome;
+                      Navigator.pop(context); // Fecha o diálogo
+                    },
+                  );
+                },
+              ),
+            ),
+      );
+    } catch (e) {
+      print("Erro ao buscar clientes: $e");
     }
   }
 
@@ -199,33 +232,7 @@ class CriarOrcamentoPageState extends State<CriarOrcamentoPage> {
               onTap: () {
                 // Exibe um diálogo para escolher o cliente
                 // Aqui você deve obter a lista de clientes da API via GET
-                showDialog(
-                  context: context,
-                  builder:
-                      (_) => AlertDialog(
-                        title: const Text('Selecione o Código do Cliente'),
-                        content: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: clientes.length,
-                          itemBuilder: (context, index) {
-                            final cliente = clientes[index];
-                            return ListTile(
-                              title: Text(
-                                '${cliente['nome']} (${cliente['id']})',
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  codigoClienteController.text =
-                                      cliente['id'].toString();
-                                  clienteController.text = cliente['nome'];
-                                });
-                                Navigator.pop(context); // Fecha o diálogo
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                );
+                mostrarDialogoCliente(context);
               },
               child: TextField(
                 controller: codigoClienteController,

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../models/user_model.dart';
 
 class UserService {
   final String baseUrl = "http://localhost:8000";
@@ -53,6 +54,17 @@ class UserService {
 
     if (response.statusCode != 200) {
       throw Exception("falha ao deletar usuário");
+    }
+  }
+
+  Future<List<User>> findAllUsersDart() async {
+    final response = await http.get(Uri.parse("$baseUrl/users"));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => User.fromJson(json)).toList();
+    } else {
+      throw Exception("Erro ${response.statusCode}: ${response.body}");
     }
   }
 }
