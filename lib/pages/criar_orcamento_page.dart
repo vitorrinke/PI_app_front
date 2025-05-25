@@ -41,7 +41,7 @@ class CriarOrcamentoPageState extends State<CriarOrcamentoPage> {
   void _carregarOrcamentos() async {
     try {
       List<dynamic> fetchedOrcamentos =
-          await _orcamentoService.findAllOrcamentos();
+          await _orcamentoService.findOrcamentosByView();
       setState(() {
         orcamento = fetchedOrcamentos.first.cast<Map<String, dynamic>>();
       });

@@ -34,6 +34,16 @@ class OrcamentoService {
     }
   }
 
+  Future<List<dynamic>> findOrcamentosByView() async {
+    final response = await http.get(Uri.parse("$baseUrl/view_all_orcamentos"));
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("orçamentos não encontrado");
+    }
+  }
+
   Future<void> createOrcamento(Map<String, dynamic> data) async {
     final response = await http.post(
       Uri.parse("$baseUrl/orcamento"),
